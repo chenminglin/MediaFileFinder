@@ -1,15 +1,31 @@
 package com.bethena.mediafilefinder;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.util.SparseArrayCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    final static String TAG = MainActivity.class.getSimpleName();
+
+    EditText mEdtPath;
+    RecyclerView mRecyclerView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,14 +34,37 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+        mEdtPath = findViewById(R.id.edit_path);
+        mEdtPath.setText("/storage/emulated/0/qqmusic");
+
+        mRecyclerView = findViewById(R.id.rv_filelist);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                String inputPath = mEdtPath.getText().toString();
+
+                File file = new File(inputPath);
+
+                Log.d(TAG,"canRead = "+file.canRead());
+
+                if (file.exists()) {
+                    String[] arrayFile = file.list();
+                    List<String> files = Arrays.asList(arrayFile);
+                    mRecyclerView.setAdapter(new FileListAdapter(files));
+                } else {
+
+                }
+
             }
         });
+
+
     }
 
     @Override
