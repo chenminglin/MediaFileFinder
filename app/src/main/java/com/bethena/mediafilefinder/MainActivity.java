@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.os.EnvironmentCompat;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +19,8 @@ import android.widget.EditText;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,12 +38,20 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
+
+
         mEdtPath = findViewById(R.id.edit_path);
         mEdtPath.setText("/storage/emulated/0/qqmusic");
 
         mRecyclerView = findViewById(R.id.rv_filelist);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+
+        Timber.d("Environment.getDataDirectory() = %s", Environment.getDataDirectory().toString());
+        Timber.d("Environment.getExternalStorageState() = %s", Environment.getExternalStorageState().toString());
+        Timber.d("Environment.getDownloadCacheDirectory() = %s", Environment.getDownloadCacheDirectory().toString());
+        Timber.d("Environment.getExternalStorageDirectory() = %s", Environment.getExternalStorageDirectory().toString());
+        Timber.d("Environment.getRootDirectory() = %s", Environment.getRootDirectory().toString());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -49,9 +60,9 @@ public class MainActivity extends AppCompatActivity {
 
                 String inputPath = mEdtPath.getText().toString();
 
-                File file = new File(inputPath);
+                File file = new File("/");
 
-                Log.d(TAG,"canRead = "+file.canRead());
+                Log.d(TAG, "canRead = " + file.canRead());
 
                 if (file.exists()) {
                     String[] arrayFile = file.list();
