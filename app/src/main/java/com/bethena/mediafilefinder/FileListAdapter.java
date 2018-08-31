@@ -8,17 +8,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bethena.mediafilefinder.viewmodel.FileViewModel;
+
+import java.io.File;
 import java.util.List;
 
 public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.FileViewHolder> {
 
-    List<String> files;
+    List<FileViewModel> files;
 
-    public FileListAdapter(List<String> files) {
+    public FileListAdapter(List<FileViewModel> files) {
         this.files = files;
     }
 
-    public void setNewDatas(List<String> files){
+    public void setNewDatas(List<FileViewModel> files) {
         this.files.clear();
 
         this.files.addAll(files);
@@ -33,7 +36,8 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.FileVi
 
     @Override
     public void onBindViewHolder(@NonNull FileViewHolder fileViewHolder, int i) {
-        fileViewHolder.txtFile.setText(files.get(i).toString());
+        fileViewHolder.txtFile.setText(files.get(i).filePath);
+        fileViewHolder.txtFileType.setText(files.get(i).fileType);
     }
 
     @Override
@@ -44,10 +48,12 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.FileVi
     class FileViewHolder extends RecyclerView.ViewHolder {
 
         TextView txtFile;
+        TextView txtFileType;
 
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
             txtFile = itemView.findViewById(R.id.txt_path);
+            txtFileType = itemView.findViewById(R.id.txt_filetype);
         }
     }
 }

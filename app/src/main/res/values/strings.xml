@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">MediaFileFinder</string>
     <string name="action_settings">Settings</string>
+
+    <string name="tip_nodata">暂无数据</string>
+    <string name="tip_dir_cannot_read">目录不存在或不可读</string>
+    <string name="tip_reinstall">权限被拒绝，请删除应用再安装</string>
+    <string name="tip_isnot_dir">你输入的路径不是文件夹</string>
+    <string name="action_search">搜索</string>
 </resources>
