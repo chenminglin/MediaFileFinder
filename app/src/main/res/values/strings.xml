@@ -7,4 +7,7 @@
     <string name="tip_reinstall">权限被拒绝，请删除应用再安装</string>
     <string name="tip_isnot_dir">你输入的路径不是文件夹</string>
     <string name="action_search">搜索</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
