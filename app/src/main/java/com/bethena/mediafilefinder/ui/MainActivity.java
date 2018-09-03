@@ -9,12 +9,15 @@ import android.support.annotation.NonNull;
 import android.support.v4.provider.DocumentFile;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bethena.mediafilefinder.R;
@@ -58,7 +61,7 @@ public class MainActivity extends BaseActivity {
 
     public void nextFolder(FileItemViewModel fileItemViewModel) {
 
-        if (fileItemViewModel != null&&fileItemViewModel.getChildFiles()!=null
+        if (fileItemViewModel != null && fileItemViewModel.getChildFiles() != null
                 && fileItemViewModel.getChildFiles().size() != 0) {
 
 
@@ -80,13 +83,13 @@ public class MainActivity extends BaseActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mFragmentContainer = findViewById(R.id.fragment_container);
+        mFragmentContainer = (FrameLayout) findViewById(R.id.fragment_container);
 
-        mEdtPath = findViewById(R.id.edit_path);
+        mEdtPath = (EditText) findViewById(R.id.edit_path);
         mEdtPath.setText(Environment.getExternalStorageDirectory().toString() + "/Android");
 
 
-        mProgressBar = findViewById(R.id.progress);
+        mProgressBar = (ContentLoadingProgressBar) findViewById(R.id.progress);
         mProgressBar.hide();
 
 
@@ -96,61 +99,63 @@ public class MainActivity extends BaseActivity {
         Timber.tag(TAG).d("Environment.getExternalStorageDirectory() = %s", Environment.getExternalStorageDirectory().toString());
         Timber.tag(TAG).d("Environment.getRootDirectory() = %s", Environment.getRootDirectory().toString());
 
-        Button btnSearch = findViewById(R.id.btn_search);
+        mEdtPath.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (i == EditorInfo.IME_ACTION_SEARCH) {
+                    doSearch();
+                    return true;
+                }
+                return false;
+            }
+        });
 
-
+        Button btnSearch = (Button) findViewById(R.id.btn_search);
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-
-                String inputPath = mEdtPath.getText().toString();
-                final File file = new File(inputPath);
-
-                Timber.tag(TAG).d(TAG, "canRead = " + file.canRead());
-
-                if (file.exists() && file.canRead()) {
-                    if (file.isDirectory()) {
-                        String[] arrayFile = file.list();
-                        if (arrayFile != null && arrayFile.length > 0) {
-                            mFragmentContainer.setVisibility(View.GONE);
-                            mProgressBar.show();
-                            InputUtil.hideKeyboard(mEdtPath);
-                            new HandlerThread("hello") {
-                                @Override
-                                protected void onLooperPrepared() {
-                                    super.onLooperPrepared();
-
-
-//                                    List<File> files = findFileByDir2(file);
-                                    FileItemViewModel fileItemViewModel = new FileItemViewModel();
-                                    fileItemViewModel.setCurrentFile(file);
-                                    List<FileItemViewModel> findedItemViewModels = findFileByDir2(fileItemViewModel);
-                                    fileItemViewModel.setChildFiles(findedItemViewModels);
-
-//                                    for (File f : files) {
-//                                        FileViewModel viewModel = new FileViewModel();
-//                                        viewModel.filePath = f.getPath();
-//                                        viewModel.fileType = DocumentFile.fromFile(f).getType();
-//                                        fileViewModels.add(viewModel);
-//                                    }
-
-                                    Message message = mHandler.obtainMessage();
-                                    message.obj = fileItemViewModel;
-                                    mHandler.sendMessage(message);
-                                }
-                            }.start();
-
-                        } else {
-                            Toast.makeText(MainActivity.this, R.string.tip_nodata, Toast.LENGTH_LONG).show();
-                        }
-                    } else {
-                        Toast.makeText(MainActivity.this, R.string.tip_isnot_dir, Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.tip_dir_cannot_read, Toast.LENGTH_LONG).show();
-                }
+                doSearch();
             }
         });
+
+        FileUtil.openFile(new File("/storage/emulated/0/Android/media/com.ruguoapp.jike/jikeImg/jike_706241142723267_pic.jpeg"), this);
+    }
+
+    private void doSearch() {
+        String inputPath = mEdtPath.getText().toString();
+        final File file = new File(inputPath);
+        Timber.tag(TAG).d(TAG, "canRead = " + file.canRead());
+        if (file.exists() && file.canRead()) {
+            if (file.isDirectory()) {
+                String[] arrayFile = file.list();
+                if (arrayFile != null && arrayFile.length > 0) {
+                    mFragmentContainer.setVisibility(View.GONE);
+                    mProgressBar.show();
+                    InputUtil.hideKeyboard(mEdtPath);
+                    new HandlerThread("hello") {
+                        @Override
+                        protected void onLooperPrepared() {
+                            super.onLooperPrepared();
+                            FileItemViewModel fileItemViewModel = new FileItemViewModel();
+                            fileItemViewModel.setCurrentFile(file);
+                            List<FileItemViewModel> findedItemViewModels = findFileByDir2(fileItemViewModel);
+                            fileItemViewModel.setChildFiles(findedItemViewModels);
+
+                            Message message = mHandler.obtainMessage();
+                            message.obj = fileItemViewModel;
+                            mHandler.sendMessage(message);
+                        }
+                    }.start();
+
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.tip_nodata, Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(MainActivity.this, R.string.tip_isnot_dir, Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(MainActivity.this, R.string.tip_dir_cannot_read, Toast.LENGTH_LONG).show();
+        }
     }
 
     /*public List<File> findFileByDir(File file) {
@@ -223,7 +228,7 @@ public class MainActivity extends BaseActivity {
         if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
             getSupportFragmentManager().popBackStack();
             return;
-        }else{
+        } else {
             finish();
         }
 

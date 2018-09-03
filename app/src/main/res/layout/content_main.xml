@@ -17,7 +17,8 @@
         <android.support.v7.widget.AppCompatEditText
             android:id="@+id/edit_path"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"/>
 
         <Button
             android:id="@+id/btn_search"

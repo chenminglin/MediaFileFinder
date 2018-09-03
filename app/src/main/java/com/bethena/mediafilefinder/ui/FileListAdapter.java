@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.bethena.mediafilefinder.R;
 import com.bethena.mediafilefinder.utils.FileUtil;
+import com.bethena.mediafilefinder.utils.ImageLoader;
 import com.bethena.mediafilefinder.viewmodel.FileItemViewModel;
 import com.bethena.mediafilefinder.viewmodel.FileViewModel;
 
@@ -55,7 +56,9 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.FileVi
                 fileTypeDrawableId = R.drawable.ic_audiotrack_black_24dp;
                 break;
             case FileUtil.FILE_TYPE_IMAGE:
-                fileTypeDrawableId = R.drawable.ic_photo_size_select_actual_black_24dp;
+//                fileTypeDrawableId = R.drawable.ic_photo_size_select_actual_black_24dp;
+                ImageLoader.loadFile(fileViewHolder.imgFileType.getContext(), viewModel.getCurrentFile())
+                        .into(fileViewHolder.imgFileType);
                 break;
             case FileUtil.FILE_TYPE_VIDEO:
                 fileTypeDrawableId = R.drawable.ic_theaters_black_24dp;
@@ -68,37 +71,39 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.FileVi
                 break;
         }
 
-        fileViewHolder.imgFileType.setImageResource(fileTypeDrawableId);
+        if (fileTypeDrawableId != 0) {
+            fileViewHolder.imgFileType.setImageResource(fileTypeDrawableId);
+        }
 
 
-        if(fileType==FileUtil.FILE_TYPE_DIR){
+        if (fileType == FileUtil.FILE_TYPE_DIR) {
             fileViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(mOnItemClickListener!=null){
+                    if (mOnItemClickListener != null) {
                         mOnItemClickListener.onNextDir(viewModel);
                     }
                 }
             });
-        }else if(fileType!=FileUtil.FILE_TYPE_OTHER){
+        } else if (fileType != FileUtil.FILE_TYPE_OTHER) {
             fileViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(mOnItemClickListener!=null){
+                    if (mOnItemClickListener != null) {
                         mOnItemClickListener.onOpenMedia(viewModel);
                     }
                 }
             });
-        }else{
+        } else {
             fileViewHolder.itemView.setOnClickListener(null);
         }
 
-        if(fileType!=FileUtil.FILE_TYPE_DIR){
+        if (fileType != FileUtil.FILE_TYPE_DIR) {
             long size = viewModel.getCurrentFile().length();
-            long kbSize = size/1024;
-            fileViewHolder.txtFileSize.setText(kbSize+"kb");
+            long kbSize = size / 1024;
+            fileViewHolder.txtFileSize.setText(kbSize + "kb");
 
-        }else{
+        } else {
             fileViewHolder.txtFileSize.setText("");
         }
 
@@ -118,14 +123,14 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.FileVi
 
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
-            imgFileType = itemView.findViewById(R.id.img_file_type);
-            txtFileName = itemView.findViewById(R.id.txt_file_name);
-            txtFileSize = itemView.findViewById(R.id.txt_size);
+            imgFileType = (ImageView) itemView.findViewById(R.id.img_file_type);
+            txtFileName = (TextView) itemView.findViewById(R.id.txt_file_name);
+            txtFileSize = (TextView) itemView.findViewById(R.id.txt_size);
             this.itemView = itemView;
         }
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onNextDir(FileItemViewModel fileItemViewModel);
 
         void onOpenMedia(FileItemViewModel fileItemViewModel);

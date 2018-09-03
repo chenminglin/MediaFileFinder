@@ -1,28 +1,29 @@
 package com.bethena.mediafilefinder.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bethena.mediafilefinder.BuildConfig;
 import com.bethena.mediafilefinder.Constants;
 import com.bethena.mediafilefinder.R;
+import com.bethena.mediafilefinder.utils.FileUtil;
 import com.bethena.mediafilefinder.viewmodel.FileItemViewModel;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.io.File;
 import java.util.List;
 
 
@@ -50,7 +51,7 @@ public class FindedFragment extends Fragment {
     public static FindedFragment newInstance(FileItemViewModel folderViewModel) {
         FindedFragment fragment = new FindedFragment();
         Bundle args = new Bundle();
-        args.putParcelable(Constants.KEY_PARAM1,folderViewModel);
+        args.putParcelable(Constants.KEY_PARAM1, folderViewModel);
         fragment.setArguments(args);
         return fragment;
     }
@@ -75,8 +76,8 @@ public class FindedFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = view.findViewById(R.id.recycler_view);
-        mTxtPath = view.findViewById(R.id.txt_path);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        mTxtPath = (TextView) view.findViewById(R.id.txt_path);
 
         mTxtPath.setText(mFolderViewModel.getCurrentFile().getAbsolutePath());
 
@@ -91,10 +92,36 @@ public class FindedFragment extends Fragment {
 
             @Override
             public void onOpenMedia(FileItemViewModel fileItemViewModel) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                String bpath = "file://" + fileItemViewModel.getCurrentFile().getAbsolutePath();
-                intent.setDataAndType(Uri.parse(bpath), fileItemViewModel.getFileType());
-                startActivity(intent);
+//                Intent intent = new Intent(Intent.ACTION_VIEW);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+////                String bpath = "file://" + fileItemViewModel.getCurrentFile().getAbsolutePath();
+////                Uri uri = Uri.fromFile(fileItemViewModel.getCurrentFile());
+////                if(fileItemViewModel.getIntFileType()== FileUtil.FILE_TYPE_AUDIO){
+////                    intent.setDataAndType(uri, "audio/*");
+////                }else if(fileItemViewModel.getIntFileType()== FileUtil.FILE_TYPE_VIDEO){
+////                    intent.setDataAndType(uri, "video/*");
+////                }else if(fileItemViewModel.getIntFileType()== FileUtil.FILE_TYPE_IMAGE){
+////                    intent.setDataAndType(uri, "image/*");
+////                }
+//                Uri uri = null;
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                    uri = FileProvider.getUriForFile(getActivity(),
+//                            "com.bethena.mediafilefinder.fileProvider", fileItemViewModel.getCurrentFile());
+//                } else {
+//                    uri = Uri.fromFile(fileItemViewModel.getCurrentFile());
+//                }
+//                intent.setDataAndType(uri, fileItemViewModel.getFileType());
+//                startActivity(intent);
+
+//                FileUtil.openFile(fileItemViewModel.getCurrentFile(), getContext());
+
+                Intent intent = new Intent();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setAction(Intent.ACTION_VIEW);
+                File file = fileItemViewModel.getCurrentFile();
+                intent.setDataAndType(Uri.fromFile(file), DocumentFile.fromFile(file).getType());
+                getActivity().startActivity(intent);
+
             }
         });
 
