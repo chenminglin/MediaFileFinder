@@ -28,6 +28,7 @@ import com.yqritc.recyclerviewflexibledivider.VerticalDividerItemDecoration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import timber.log.Timber;
@@ -35,11 +36,6 @@ import timber.log.Timber;
 
 public class FindedFragment extends Fragment {
     private static final String TAG = FindedFragment.class.getSimpleName();
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
 
     FileItemViewModel mFolderViewModel;
     List<FileItemViewModel> mFileItemViewModels;
@@ -96,6 +92,20 @@ public class FindedFragment extends Fragment {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         mTxtPath = (TextView) view.findViewById(R.id.txt_path);
         mTxtPath.setText(mFolderViewModel.getCurrentFile().getAbsolutePath());
+
+//        Collections.sort(mFileItemViewModels, new Comparator<FileItemViewModel>() {
+//            @Override
+//            public int compare(FileItemViewModel f1, FileItemViewModel f2) {
+//
+//                if(f1.getIntFileType()>f2.getIntFileType()){
+//                    return 1;
+//                }else if(f1.getIntFileType()==f2.getIntFileType()){
+//                    return 0;
+//                }else {
+//                    return -1;
+//                }
+//            }
+//        });
 
         mAdapter = new FileListAdapter(mFileItemViewModels);
         mAdapter.setOnItemClickListener(new FileListAdapter.OnItemClickListener() {

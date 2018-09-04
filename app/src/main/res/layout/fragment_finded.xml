@@ -6,6 +6,14 @@
     android:orientation="vertical"
     tools:context=".ui.FindedFragment">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:gravity="center"
+        android:text="@string/search_result"
+        android:textColor="@android:color/white" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -25,14 +33,13 @@
         android:id="@+id/txt_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="4dp"
+        android:background="#999"
         android:paddingBottom="4dp"
         android:paddingLeft="6dp"
         android:paddingRight="6dp"
+        android:paddingTop="4dp"
         android:textColor="#333"
-        tools:text="/aaaa/dddd/bb"
-        android:background="#999"
-        />
+        tools:text="/aaaa/dddd/bb" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
