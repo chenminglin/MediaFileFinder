@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="70dp"
     android:orientation="horizontal"
@@ -19,6 +20,12 @@
             android:id="@+id/txt_file_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#333"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            tools:text="file name"
             />
 
         <TextView
@@ -26,7 +33,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/txt_file_name"
-            android:layout_marginTop="6dp"/>
+            android:layout_marginTop="6dp"
+            android:textColor="#666"
+            tools:text="323kb"/>
     </RelativeLayout>
 
 </LinearLayout>
