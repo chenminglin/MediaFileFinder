@@ -22,11 +22,6 @@ public class SearchAsyncTask extends AsyncTask<File, List<String>, Void> {
         this.mKeyWord = mKeyWord;
     }
 
-    @Override
-    protected void onCancelled() {
-        super.onCancelled();
-        Timber.tag(TAG).d("onCancel....");
-    }
 
     @Override
     protected void onPostExecute(Void aVoid) {

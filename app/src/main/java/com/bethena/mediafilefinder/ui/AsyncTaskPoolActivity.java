@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.bethena.mediafilefinder.R;
 import com.bethena.mediafilefinder.core.BaseActivity;
@@ -23,7 +24,7 @@ import timber.log.Timber;
 
 public class AsyncTaskPoolActivity extends BaseActivity {
 
-    final static int THREAD_COUNT = 5;
+    final static int THREAD_COUNT = 10;
     EditText mEditText;
     Button mBtnSearch;
 
@@ -32,7 +33,7 @@ public class AsyncTaskPoolActivity extends BaseActivity {
     List<String> mDatas = new ArrayList<>();
     SearchResultAdapter mAdapter;
 
-
+    TextView mTxtFindedCount;
 
     volatile List<SearchAsyncTask> mTasks = new ArrayList<>();
 
@@ -45,6 +46,8 @@ public class AsyncTaskPoolActivity extends BaseActivity {
         mEditText = (EditText) findViewById(R.id.edt_keyword);
         mBtnSearch = (Button) findViewById(R.id.btn_search);
         mListView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        mTxtFindedCount = (TextView) findViewById(R.id.txt_finded_count);
 
         mListView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new SearchResultAdapter(mDatas);
@@ -61,7 +64,7 @@ public class AsyncTaskPoolActivity extends BaseActivity {
 
     }
 
-    void toSearch(){
+    void toSearch() {
         cancelAllTasks();
         mDatas.clear();
         mAdapter.notifyDataSetChanged();
@@ -89,11 +92,12 @@ public class AsyncTaskPoolActivity extends BaseActivity {
                         mDatas.addAll(fileNames);
                         int end = mDatas.size();
                         mAdapter.notifyItemRangeChanged(start, end);
+                        mTxtFindedCount.setText(getString(R.string.finded_count, mDatas.size()));
                     }
 
                     @Override
                     public void onFinished(SearchAsyncTask task) {
-                        if(task.getStatus()== AsyncTask.Status.FINISHED){
+                        if (task.getStatus() == AsyncTask.Status.FINISHED) {
                             mTasks.remove(task);
                         }
                     }
@@ -111,9 +115,9 @@ public class AsyncTaskPoolActivity extends BaseActivity {
         cancelAllTasks();
     }
 
-    void cancelAllTasks(){
-        for(SearchAsyncTask task :mTasks){
-            if(task.getStatus()!= AsyncTask.Status.FINISHED&&!task.isCancelled()){
+    void cancelAllTasks() {
+        for (SearchAsyncTask task : mTasks) {
+            if (task.getStatus() != AsyncTask.Status.FINISHED && !task.isCancelled()) {
                 task.cancel(true);
                 task.setThreadCallBack(null);
             }
