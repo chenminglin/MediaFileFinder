@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import timber.log.Timber;
 
 public class MainActivity extends BaseActivity {
@@ -118,7 +119,6 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        FileUtil.openFile(new File("/storage/emulated/0/Android/media/com.ruguoapp.jike/jikeImg/jike_706241142723267_pic.jpeg"), this);
     }
 
     private void doSearch() {
@@ -156,6 +156,10 @@ public class MainActivity extends BaseActivity {
         } else {
             Toast.makeText(MainActivity.this, R.string.tip_dir_cannot_read, Toast.LENGTH_LONG).show();
         }
+    }
+
+    protected void doSearch2(){
+        String inputPath = mEdtPath.getText().toString();
     }
 
     /*public List<File> findFileByDir(File file) {
