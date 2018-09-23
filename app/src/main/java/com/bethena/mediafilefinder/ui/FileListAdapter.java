@@ -1,6 +1,7 @@
 package com.bethena.mediafilefinder.ui;
 
 import android.support.annotation.NonNull;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,11 @@ import com.bethena.mediafilefinder.viewmodel.FileViewModel;
 
 import java.util.List;
 
+import timber.log.Timber;
+
 public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.FileViewHolder> {
+
+    final static String TAG = "FileListAdapter";
 
     List<FileItemViewModel> files;
 
@@ -41,6 +46,9 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.FileVi
     public void onBindViewHolder(@NonNull final FileViewHolder fileViewHolder, int i) {
 
         final FileItemViewModel viewModel = files.get(i);
+
+        Timber.tag(TAG).d(viewModel.getCurrentFile().getAbsolutePath() + " -----  " + DocumentFile.fromFile(viewModel.getCurrentFile()).getType());
+
 
         fileViewHolder.txtFileName.setText(viewModel.getCurrentFile().getName());
 

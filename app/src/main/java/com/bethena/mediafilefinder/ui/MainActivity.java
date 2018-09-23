@@ -20,6 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bethena.mediafilefinder.BuildConfig;
 import com.bethena.mediafilefinder.R;
 import com.bethena.mediafilefinder.core.BaseActivity;
 import com.bethena.mediafilefinder.utils.FileUtil;
@@ -28,8 +29,9 @@ import com.bethena.mediafilefinder.viewmodel.FileItemViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -46,6 +48,11 @@ public class MainActivity extends BaseActivity {
 
     final static int FILE_MIN_UNIT = 900 * 1024;
 
+    /**
+     * 记录所有符合条件的目录，key为路径
+     */
+    Map<String, FileItemViewModel> mPathFolderMap = new HashMap<>();
+
 
     Handler mHandler = new Handler() {
         @Override
@@ -61,20 +68,21 @@ public class MainActivity extends BaseActivity {
     };
 
     public void nextFolder(FileItemViewModel fileItemViewModel) {
-
         if (fileItemViewModel != null && fileItemViewModel.getChildFiles() != null
                 && fileItemViewModel.getChildFiles().size() != 0) {
 
-
             FindedFragment findedFragment = FindedFragment.newInstance(fileItemViewModel);
             nextFolder(findedFragment);
-
         }
-
     }
 
     public void nextFolder(FindedFragment fragment) {
         replaceFragment(R.id.fragment_container, fragment);
+    }
+
+    public void toFolder(File file) {
+        FileItemViewModel fileItemViewModel = mPathFolderMap.get(file.getAbsolutePath());
+        nextFolder(fileItemViewModel);
     }
 
     @Override
@@ -87,7 +95,7 @@ public class MainActivity extends BaseActivity {
         mFragmentContainer = (FrameLayout) findViewById(R.id.fragment_container);
 
         mEdtPath = (EditText) findViewById(R.id.edit_path);
-        mEdtPath.setText(Environment.getExternalStorageDirectory().toString() + "/Android");
+//        mEdtPath.setText(Environment.getExternalStorageDirectory().toString());
 
 
         mProgressBar = (ContentLoadingProgressBar) findViewById(R.id.progress);
@@ -119,12 +127,22 @@ public class MainActivity extends BaseActivity {
             }
         });
 
+        Button btnChooseFolder = (Button) findViewById(R.id.btn_choose_folder);
+        btnChooseFolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, DirectorySelectorActivity.class);
+                startActivity(intent);
+            }
+        });
+
+//        FileUtil.openFile(new File("/storage/emulated/0/Android/media/com.ruguoapp.jike/jikeImg/jike_706241142723267_pic.jpeg"), this);
     }
 
     private void doSearch() {
         String inputPath = mEdtPath.getText().toString();
-        final File file = new File(inputPath);
-        Timber.tag(TAG).d(TAG, "canRead = " + file.canRead());
+        final File file = new File(Environment.getExternalStorageDirectory().toString() + "/" + inputPath.trim());
+//        Timber.tag(TAG).d(TAG, "canRead = " + file.canRead());
         if (file.exists() && file.canRead()) {
             if (file.isDirectory()) {
                 String[] arrayFile = file.list();
@@ -132,14 +150,17 @@ public class MainActivity extends BaseActivity {
                     mFragmentContainer.setVisibility(View.GONE);
                     mProgressBar.show();
                     InputUtil.hideKeyboard(mEdtPath);
+
                     new HandlerThread("hello") {
                         @Override
                         protected void onLooperPrepared() {
                             super.onLooperPrepared();
                             FileItemViewModel fileItemViewModel = new FileItemViewModel();
                             fileItemViewModel.setCurrentFile(file);
-                            List<FileItemViewModel> findedItemViewModels = findFileByDir2(fileItemViewModel);
+                            List<FileItemViewModel> findedItemViewModels = findFileByDir(fileItemViewModel);
                             fileItemViewModel.setChildFiles(findedItemViewModels);
+
+                            mPathFolderMap.put(file.getAbsolutePath(), fileItemViewModel);
 
                             Message message = mHandler.obtainMessage();
                             message.obj = fileItemViewModel;
@@ -188,9 +209,12 @@ public class MainActivity extends BaseActivity {
     }*/
 
 
-    public List<FileItemViewModel> findFileByDir2(FileItemViewModel fileItemViewModel) {
+    public List<FileItemViewModel> findFileByDir(FileItemViewModel fileItemViewModel) {
         File currentFile = fileItemViewModel.getCurrentFile();
         if (currentFile.exists() && currentFile.canRead()) {
+            if (currentFile.getAbsolutePath().contains("immomo") && BuildConfig.DEBUG) {//我的手机会导致崩溃，屏蔽
+                return new ArrayList<>();
+            }
             File[] files;
 //            Timber.tag(TAG).d(currentFile.getAbsolutePath());
             files = currentFile.listFiles();
@@ -202,15 +226,16 @@ public class MainActivity extends BaseActivity {
                     if (childFile.isDirectory()) {
                         FileItemViewModel childFileViewModel = new FileItemViewModel();
                         childFileViewModel.setCurrentFile(childFile);
-                        List<FileItemViewModel> findedFiles = findFileByDir2(childFileViewModel);
+                        List<FileItemViewModel> findedFiles = findFileByDir(childFileViewModel);
                         if (findedFiles.size() > 0) {
                             childFileViewModel.setChildFiles(findedFiles);
                             childFileViewModel.setIntFileType(FileUtil.FILE_TYPE_DIR);
                             childFileViewModels.add(childFileViewModel);
+                            mPathFolderMap.put(currentFile.getAbsolutePath(), fileItemViewModel);
                         }
                     } else {
                         int fileType = FileUtil.whatType(childFile);
-                        if (childFile.length() > FILE_MIN_UNIT || fileType != FileUtil.FILE_TYPE_OTHER) {
+                        if (childFile.length() > FILE_MIN_UNIT || fileType == FileUtil.FILE_TYPE_VIDEO) {
                             FileItemViewModel viewModel = new FileItemViewModel();
                             viewModel.setCurrentFile(childFile);
                             viewModel.setIntFileType(fileType);

@@ -21,28 +21,31 @@ import com.bethena.mediafilefinder.Constants;
 import com.bethena.mediafilefinder.R;
 import com.bethena.mediafilefinder.utils.FileUtil;
 import com.bethena.mediafilefinder.viewmodel.FileItemViewModel;
+import com.bethena.mediafilefinder.viewmodel.PathTabViewModel;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
+import com.yqritc.recyclerviewflexibledivider.VerticalDividerItemDecoration;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import timber.log.Timber;
 
 
 public class FindedFragment extends Fragment {
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
+    private static final String TAG = FindedFragment.class.getSimpleName();
 
     FileItemViewModel mFolderViewModel;
-
     List<FileItemViewModel> mFileItemViewModels;
-
     RecyclerView mRecyclerView;
-
     FileListAdapter mAdapter;
-
     TextView mTxtPath;
+
+    List<PathTabViewModel> mTabViewModels;
+    RecyclerView mTabRecyclerView;
+    PathTabsAdapter mPathTabsAdapter;
 
     public FindedFragment() {
     }
@@ -62,6 +65,16 @@ public class FindedFragment extends Fragment {
         if (getArguments() != null) {
             mFolderViewModel = getArguments().getParcelable(Constants.KEY_PARAM1);
             mFileItemViewModels = mFolderViewModel.getChildFiles();
+
+            mTabViewModels = new ArrayList<>();
+            List<File> parents = FileUtil.getAllParent(mFolderViewModel.getCurrentFile());
+            if (parents != null && parents.size() > 0) {
+                for (int i = parents.size() - 1; i >= 0; i--) {
+                    mTabViewModels.add(new PathTabViewModel(parents.get(i)));
+                }
+            }
+
+            mTabViewModels.add(new PathTabViewModel(mFolderViewModel.getCurrentFile()));
         }
     }
 
@@ -78,11 +91,23 @@ public class FindedFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         mTxtPath = (TextView) view.findViewById(R.id.txt_path);
-
         mTxtPath.setText(mFolderViewModel.getCurrentFile().getAbsolutePath());
 
-        mAdapter = new FileListAdapter(mFileItemViewModels);
+//        Collections.sort(mFileItemViewModels, new Comparator<FileItemViewModel>() {
+//            @Override
+//            public int compare(FileItemViewModel f1, FileItemViewModel f2) {
+//
+//                if(f1.getIntFileType()>f2.getIntFileType()){
+//                    return 1;
+//                }else if(f1.getIntFileType()==f2.getIntFileType()){
+//                    return 0;
+//                }else {
+//                    return -1;
+//                }
+//            }
+//        });
 
+        mAdapter = new FileListAdapter(mFileItemViewModels);
         mAdapter.setOnItemClickListener(new FileListAdapter.OnItemClickListener() {
             @Override
             public void onNextDir(FileItemViewModel fileItemViewModel) {
@@ -126,17 +151,37 @@ public class FindedFragment extends Fragment {
         });
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-
         mRecyclerView.setLayoutManager(layoutManager);
-
         mRecyclerView.setAdapter(mAdapter);
-
         mRecyclerView.addItemDecoration(
                 new HorizontalDividerItemDecoration.Builder(getContext())
                         .build()
         );
 
 
+        mTabRecyclerView = (RecyclerView) view.findViewById(R.id.rv_path_tabs);
+        LinearLayoutManager tabManager = new LinearLayoutManager(getContext());
+        tabManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        mTabRecyclerView.setLayoutManager(tabManager);
+
+        mPathTabsAdapter = new PathTabsAdapter(mTabViewModels);
+        mTabRecyclerView.setAdapter(mPathTabsAdapter);
+
+        mPathTabsAdapter.setTabOnClickListener(new PathTabsAdapter.TabOnClickListener() {
+            @Override
+            public void onClick(PathTabViewModel viewModel) {
+                Timber.tag(TAG).d(viewModel.floder.getAbsolutePath());
+                MainActivity activity = (MainActivity) getActivity();
+
+                activity.toFolder(viewModel.floder);
+            }
+        });
+
+        mTabRecyclerView.addItemDecoration(new VerticalDividerItemDecoration
+                .Builder(getContext()).drawable(R.drawable.ic_navigate_next_black_24dp)
+                .build());
+
+        tabManager.scrollToPositionWithOffset(mTabViewModels.size() - 1, 0);
 
 
     }

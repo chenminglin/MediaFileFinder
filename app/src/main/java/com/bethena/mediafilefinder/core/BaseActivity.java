@@ -15,6 +15,7 @@ import com.bethena.mediafilefinder.R;
 
 
 public class BaseActivity extends AppCompatActivity {
+    protected final String TAG = getClass().getSimpleName();
 
     protected final String TAG = getClass().getSimpleName();
 
