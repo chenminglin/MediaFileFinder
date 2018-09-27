@@ -1,5 +1,6 @@
 package com.bethena.mediafilefinder.ui;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,7 +25,7 @@ import timber.log.Timber;
 
 public class AsyncTaskPoolActivity extends BaseActivity {
 
-    final static int THREAD_COUNT = 10;
+    final static int THREAD_COUNT = 20;
     EditText mEditText;
     Button mBtnSearch;
 
@@ -36,6 +37,9 @@ public class AsyncTaskPoolActivity extends BaseActivity {
     TextView mTxtFindedCount;
 
     volatile List<SearchAsyncTask> mTasks = new ArrayList<>();
+    long startTime;
+    long endTime;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +69,7 @@ public class AsyncTaskPoolActivity extends BaseActivity {
     }
 
     void toSearch() {
+        startTime = System.currentTimeMillis();
         cancelAllTasks();
         mDatas.clear();
         mAdapter.notifyDataSetChanged();
@@ -86,13 +91,17 @@ public class AsyncTaskPoolActivity extends BaseActivity {
 
                 File[] tempFiles = Arrays.copyOfRange(childfiles, start, end);
                 SearchAsyncTask searchAsyncTask = new SearchAsyncTask(new ThreadCallBack() {
+                    @SuppressLint("StringFormatMatches")
                     @Override
                     public void onFinded(List<String> fileNames) {
                         int start = mDatas.size();
                         mDatas.addAll(fileNames);
                         int end = mDatas.size();
                         mAdapter.notifyItemRangeChanged(start, end);
-                        mTxtFindedCount.setText(getString(R.string.finded_count, mDatas.size()));
+
+                        endTime = System.currentTimeMillis();
+                        long time = (endTime - startTime) / 1000;
+                        mTxtFindedCount.setText(getString(R.string.finded_count, mDatas.size(), THREAD_COUNT, time));
                     }
 
                     @Override
