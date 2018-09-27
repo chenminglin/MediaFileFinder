@@ -1,6 +1,8 @@
 package com.bethena.mediafilefinder.ui;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -29,6 +31,12 @@ import com.bethena.mediafilefinder.utils.InputUtil;
 import com.bethena.mediafilefinder.viewmodel.FileItemViewModel;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,6 +122,11 @@ public class MainActivity extends BaseActivity {
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if (i == EditorInfo.IME_ACTION_SEARCH) {
                     doSearch();
+//                    try {
+//                        doSearch2();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
                     return true;
                 }
                 return false;
@@ -128,21 +141,21 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        Button btnChooseFolder = (Button) findViewById(R.id.btn_choose_folder);
-        btnChooseFolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, DirectorySelectorActivity.class);
-                startActivity(intent);
-            }
-        });
+//        Button btnChooseFolder = (Button) findViewById(R.id.btn_choose_folder);
+//        btnChooseFolder.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(MainActivity.this, DirectorySelectorActivity.class);
+//                startActivity(intent);
+//            }
+//        });
 
 //        FileUtil.openFile(new File("/storage/emulated/0/Android/media/com.ruguoapp.jike/jikeImg/jike_706241142723267_pic.jpeg"), this);
     }
 
     private void doSearch() {
         String inputPath = mEdtPath.getText().toString();
-        final File file = new File(Environment.getExternalStorageDirectory().toString() + "/" + inputPath.trim());
+        final File file = new File(Environment.getExternalStorageDirectory().toString() + File.separator + inputPath.trim());
 //        Timber.tag(TAG).d(TAG, "canRead = " + file.canRead());
         if (file.exists() && file.canRead()) {
             if (file.isDirectory()) {
@@ -179,6 +192,49 @@ public class MainActivity extends BaseActivity {
             Toast.makeText(MainActivity.this, R.string.tip_dir_cannot_read, Toast.LENGTH_LONG).show();
         }
     }
+
+
+    protected void doSearch2() throws IOException {
+        String inputPath = mEdtPath.getText().toString();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String targetPath = Environment.getExternalStorageDirectory().toString() + File.separator + inputPath.trim();
+            URI uri = URI.create("file:///" + targetPath);
+            Path path = Paths.get(uri);
+            DirectoryStream<Path> streams = Files.newDirectoryStream(path);
+            for (Path path1 : streams) {
+                Timber.tag(TAG).d(path1.toString());
+            }
+        }
+
+
+    }
+
+    /*public List<File> findFileByDir(File file) {
+        if (file.exists() && file.canRead()) {
+            file.isDirectory();
+            File[] files;
+            Timber.tag(TAG).d(file.getAbsolutePath());
+            files = file.listFiles();
+
+            if (files.length > 0) {
+                List<File> fileList = new ArrayList<>();
+                for (File childFile : files) {
+                    Timber.tag(TAG).d(childFile.getAbsolutePath() + " = " + DocumentFile.fromFile(childFile).getType());
+                    if (childFile.isDirectory()) {
+                        fileList.addAll(findFileByDir(childFile));
+                    } else {
+                        if (childFile.length() > FILE_MIN_UNIT || FileUtil.whatType(childFile) != FileUtil.FILE_TYPE_OTHER) {
+                            fileList.add(childFile);
+                        }
+                    }
+                }
+                return fileList;
+            }
+        }
+        return new ArrayList<>();
+    }*/
+
 
     public List<FileItemViewModel> findFileByDir(FileItemViewModel fileItemViewModel) {
         File currentFile = fileItemViewModel.getCurrentFile();

@@ -17,6 +17,7 @@ import com.bethena.mediafilefinder.R;
 public class BaseActivity extends AppCompatActivity {
     protected final String TAG = getClass().getSimpleName();
 
+
     String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
 
     @Override
