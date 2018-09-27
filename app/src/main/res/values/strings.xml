@@ -9,7 +9,7 @@
     <string name="action_search">搜索</string>
     <string name="action_choose_folder">选择目录</string>
     <string name="search_result">搜索结果</string>
-    <string formatted="false" name="finded_count">总共搜出%d个文件，使用线程数%d，耗时%ds。</string>
+    <string name="finded_count" formatted="false">总共搜出%d个文件，使用线程数%d，耗时%ds。</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

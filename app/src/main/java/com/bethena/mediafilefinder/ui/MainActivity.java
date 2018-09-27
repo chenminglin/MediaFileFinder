@@ -1,8 +1,6 @@
 package com.bethena.mediafilefinder.ui;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -13,9 +11,9 @@ import android.support.v4.provider.DocumentFile;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,11 +30,6 @@ import com.bethena.mediafilefinder.viewmodel.FileItemViewModel;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -151,6 +144,15 @@ public class MainActivity extends BaseActivity {
 //        });
 
 //        FileUtil.openFile(new File("/storage/emulated/0/Android/media/com.ruguoapp.jike/jikeImg/jike_706241142723267_pic.jpeg"), this);
+
+        Button buttonStorage = (Button) findViewById(R.id.btn_storage);
+        buttonStorage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,StorageActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void doSearch() {
@@ -197,15 +199,15 @@ public class MainActivity extends BaseActivity {
     protected void doSearch2() throws IOException {
         String inputPath = mEdtPath.getText().toString();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String targetPath = Environment.getExternalStorageDirectory().toString() + File.separator + inputPath.trim();
-            URI uri = URI.create("file:///" + targetPath);
-            Path path = Paths.get(uri);
-            DirectoryStream<Path> streams = Files.newDirectoryStream(path);
-            for (Path path1 : streams) {
-                Timber.tag(TAG).d(path1.toString());
-            }
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            String targetPath = Environment.getExternalStorageDirectory().toString() + File.separator + inputPath.trim();
+//            URI uri = URI.create("file:///" + targetPath);
+//            Path path = Paths.get(uri);
+//            DirectoryStream<Path> streams = Files.newDirectoryStream(path);
+//            for (Path path1 : streams) {
+//                Timber.tag(TAG).d(path1.toString());
+//            }
+//        }
 
 
     }

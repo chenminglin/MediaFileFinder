@@ -1,18 +1,27 @@
 package com.bethena.mediafilefinder.utils;
 
+import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.os.StatFs;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
+import android.text.format.Formatter;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.bethena.mediafilefinder.ui.MainActivity;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,4 +173,78 @@ public class FileUtil {
         return null;
     }
 
+
+    /**
+     * 获得SD卡总大小	 * 	 * @return
+     */
+    public static String getSDTotalSize(Context context) {
+        File path = Environment.getExternalStorageDirectory();
+
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSize();
+        long totalBlocks = stat.getBlockCount();
+        return Formatter.formatFileSize(context, blockSize * totalBlocks);
+    }
+
+    /**
+     * 获得sd卡剩余容量，即可用大小	 * 	 * @return
+     */
+    public static String getSDAvailableSize(Context context) {
+        File path = Environment.getExternalStorageDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSize();
+        long availableBlocks = stat.getAvailableBlocks();
+        return Formatter.formatFileSize(context, blockSize * availableBlocks);
+    }
+
+    /**
+     * 获得机身内存总大小	 * 	 * @return
+     */
+    public static String getRomTotalSize(Context context) {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSize();
+        long totalBlocks = stat.getBlockCount();
+        return Formatter.formatFileSize(context, blockSize * totalBlocks);
+    }
+
+    /**
+     * 获得机身可用内存	 * 	 * @return
+     */
+    public static String getRomAvailableSize(Context context) {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSize();
+        long availableBlocks = stat.getAvailableBlocks();
+        return Formatter.formatFileSize(context, blockSize * availableBlocks);
+
+
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public static String[] getExtSdCardPathsForActivity(Context context) {
+        List<String> paths = new ArrayList<>();
+        for (File file : context.getExternalFilesDirs("external")) {
+            if (file != null) {
+                int index = file.getAbsolutePath().lastIndexOf("/Android/data");
+                if (index < 0) {
+                    Log.w("Fileutil", "Unexpected external file dir: " + file.getAbsolutePath());
+                } else {
+                    String path = file.getAbsolutePath().substring(0, index);
+                    try {
+                        path = new File(path).getCanonicalPath();
+                    } catch (IOException e) {
+                        // Keep non-canonical path.
+                    }
+                    paths.add(path);
+                }
+            }
+        }
+        if (paths.isEmpty()) paths.add("/storage/sdcard1");
+        return paths.toArray(new String[0]);
+    }
+
+    public static boolean canListFiles(File f) {
+        return f.canRead() && f.isDirectory();
+    }
 }
